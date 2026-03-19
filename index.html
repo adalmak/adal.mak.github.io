@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Queue App V1.6</title>
+<style>
+body{font-family:"Noto Sans Thai",Arial,sans-serif;background:#f4f6f8;padding:18px;color:#0f172a}
+.container{max-width:900px;margin:0 auto}
+.card{background:white;border-radius:10px;padding:14px;box-shadow:0 6px 18px rgba(2,6,23,0.06);margin-bottom:12px}
+label{display:block;font-size:14px;margin-top:8px}
+input,select,button{width:100%;padding:8px;border-radius:6px;border:1px solid #d1d5db;font-size:14px}
+.inline{display:flex;gap:8px;align-items:center}.small{width:120px}
+button.primary{background:#2563eb;color:white;border:none;cursor:pointer;font-size:15px;font-weight:600}
+.preview-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:12px}
+.ticket-wrapper{background:white;padding:3mm;display:inline-block}
+.ticket{
+  width:56mm;
+  min-height:52mm;
+  background:white;
+  padding:6px;
+  border-radius:6px;
+  box-shadow:0 2px 8px rgba(2,6,23,0.06);
+  text-align:center;
+  overflow:hidden;
+  border:2px dashed #0b5ed7;
+  position:relative;
+  display:flex;              /* ✅ เพิ่ม */
+  flex-direction:column;     /* ✅ เพิ่ม */
+  justify-content:flex-start; /* หรือ space-between */
+  align-items:center;        /* ✅ เพิ่ม */
+}
+.ticket .header{font-size:16px;font-weight:700;color:#000;margin-top:1px;margin-bottom:5px}
+.ticket .qn{font-size:72px;font-weight:800;color:#000;margin:6px 0;line-height:1}
+.ticket .footer{
+  position:static;
+  margin-top:auto;
+  bottom: 15px;
+  width:100%;
+  margin-bottom:4px;
+  font-size:11px;
+  color:#242323;
+  text-align:center
+}
+.ticket .meta{font-size:14px;color:#000;margin-top:2px;font-weight:600}
+.list{max-height:380px;overflow:auto;margin-top:10px}
+.entry{display:flex;justify-content:space-between;padding:8px;border-bottom:1px solid #eef2f7}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Queue App Ver.1.6</h1>
+<div class="card">
+<h3>ลำดับการลงทะเบียน</h3>
+<div class="preview-wrap">
+<div class="ticket-wrapper">
+<div id="ticketPreview" class="ticket">
+<div class="header" id="previewEvent">ลงทะเบียน</div>
+<div class="qn" id="previewQ">001</div>
+<div class="meta" id="previewName">มูลนิธิโครงการหลวง</div>
+<div class="meta" id="previewCid">1234567890123</div>
+<div class="meta" id="previewNote">Walk-in</div>
+<div class="footer" id="previewTime">11/11/2025 09:35</div>
+</div>
+</div>
+</div>
+<div class="inline" style="justify-content:center;">
+<button id="btnPreviewImage" class="primary" style="width:45%">แสดงภาพตัวอย่างบัตรคิว</button>
+<button id="btnPrint" class="primary" style="width:45%">พิมพ์บัตรคิว</button>
+</div>
+</div>
+
+<div class="card">
+<h3>ค้นหาและลงทะเบียน</h3>
+<label>ค้นหา (เลขบัตรประชาชน / รหัส / ชื่อ / นามสกุล)</label>
+<div class="inline">
+<input id="searchInput" placeholder="พิมพ์เลขบัตรประชาชน, รหัส, ชื่อ หรือ นามสกุล">
+<button id="btnSearch">ค้นหา</button>
+</div>
+<label>กรอกข้อมูลใหม่ (Walk-in)</label>
+<input id="nameInput" placeholder="ชื่อ-สกุล" >
+<input id="deptInput" placeholder="ฝ่าย / แผนก">
+<input id="cidInput" placeholder="เลขบัตรประชาชน" required>
+<input id="noteInput" placeholder="หมายเหตุ">
+<div class="inline" style="margin-top:5px">
+<button class="primary" id="btnRegister">ออกบัตรคิว / อัปเดตบัตรตัวอย่าง</button>
+</div>
+<h3>รายการคิวล่าสุด</h3>
+<div id="list" class="list"></div>
+<div class="inline" style="margin-top:10px">
+<button id="btnExport">ส่งออกรายการคิวเป็นไฟล์</button>
+<button id="btnResetQueue">Reset คิว</button>
+</div>
+</div>
+
+<div class="card">
+<h3>ฐานข้อมูล</h3>
+<label>ชื่อกิจกรรม</label>
+<input id="eventName" placeholder="กรอกชื่อกิจกรรม" value="ลงทะเบียน">
+<label style="margin-top:10px">ตั้งค่าเลขลำดับคิวเริ่มต้น</label>
+<div class="inline">
+<input type="number" id="startQueue" placeholder="ใส่เลขเริ่มต้น เช่น 1001" min="1">
+<button id="btnSaveStartQueue">บันทึกค่าเริ่มต้น</button>
+</div>
+<label style="margin-top:10px">อัปโหลด CSV รายชื่อ</label>
+<div class="inline">
+<input type="file" id="csvFile">
+<button id="btnUploadCSV">อัปโหลด CSV</button>
+</div>
+<h4 style="margin-top:15px">ตั้งค่าขนาดบัตรคิว</h4>
+<div class="inline">
+<label for="ticketWidth">ความกว้าง (mm)</label>
+<input type="number" id="ticketWidth" value="56" class="small">
+<label for="ticketHeight">ความสูง (mm)</label>
+<input type="number" id="ticketHeight" value="52" class="small">
+<button id="btnApplySize">ปรับขนาด</button>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+let sampleData=[];
+const KEY_QUEUE='queue_app_next';
+const KEY_ENTRIES='queue_app_entries';
+const KEY_CSV='queue_app_csv';
+const KEY_START='queue_app_start';
+let startQ=Number(localStorage.getItem(KEY_START)||1);
+let nextQ=Number(localStorage.getItem(KEY_QUEUE)||startQ);
+let entries=JSON.parse(localStorage.getItem(KEY_ENTRIES)||'[]');
+
+document.getElementById('startQueue').value=startQ;
+
+function updatePreview(name,dept,cid,note){
+ document.getElementById('previewEvent').textContent=document.getElementById('eventName').value;
+ document.getElementById('previewQ').textContent=String(nextQ).padStart(3,'0');
+ document.getElementById('previewName').textContent=name||'Walk-in';
+ document.getElementById('previewCid').textContent = cid || '';
+ document.getElementById('previewNote').textContent=note||'';
+ document.getElementById('previewTime').textContent=new Date().toLocaleString('th-TH');
+}
+
+document.getElementById('btnApplySize').addEventListener('click',()=>{
+ const w=document.getElementById('ticketWidth').value;
+ const h=document.getElementById('ticketHeight').value;
+ if(w>0&&h>0){
+   const ticket=document.getElementById('ticketPreview');
+   ticket.style.width=w+'mm';
+   ticket.style.height=h+'mm';
+   alert(`ปรับขนาดบัตรคิวเป็น ${w}x${h} mm แล้ว`);
+ }else alert('กรุณากรอกค่าความกว้างและความสูงให้ถูกต้อง');
+});
+
+document.getElementById('btnSaveStartQueue').addEventListener('click',()=>{
+ const val=Number(document.getElementById('startQueue').value);
+ if(isNaN(val)||val<1)return alert('กรุณากรอกเลขเริ่มต้นที่มากกว่า 0');
+ startQ=val;nextQ=startQ;
+ localStorage.setItem(KEY_START,startQ);
+ localStorage.setItem(KEY_QUEUE,nextQ);
+ alert('บันทึกเลขเริ่มต้นคิวเรียบร้อย! จะเริ่มจาก '+startQ);
+});
+
+document.getElementById('btnUploadCSV').addEventListener('click',()=>{
+ const file=document.getElementById('csvFile').files[0];
+ if(!file)return alert('เลือกไฟล์ CSV ก่อน');
+ const reader=new FileReader();
+ reader.onload=e=>{
+   const text=e.target.result.split(/\r?\n/).filter(r=>r.trim());
+   const headers=text[0].split(',').map(h=>h.trim().toLowerCase());
+   sampleData=text.slice(1).map(line=>{
+     const vals=line.split(',');const obj={};headers.forEach((h,i)=>obj[h]=vals[i]?.trim());return obj;
+   });
+   localStorage.setItem(KEY_CSV,JSON.stringify(sampleData));
+   alert('โหลด CSV สำเร็จ');
+ };
+ reader.readAsText(file,'UTF-8');
+});
+
+document.getElementById('searchInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    document.getElementById('btnSearch').click();
+  }
+});
+document.getElementById('btnSearch').addEventListener('click',()=>{
+ const kw=document.getElementById('searchInput').value.trim().toLowerCase();
+ if(!kw)return alert('กรุณากรอกคำค้นหา');
+ const found=sampleData.find(r=>[r.cid,r.id,r.name,r.surname,r.title].some(f=>f?.toLowerCase().includes(kw)));
+ if(found){
+    const fullDept=`${found.dept||''}${found.dept&&found.section?' / ':''}${found.section||''}`;
+   document.getElementById('nameInput').value=`${found.title||''}${found.name||''} ${found.surname||''}`;
+   document.getElementById('deptInput').value=fullDept;
+   document.getElementById('cidInput').value=found.cid||'';
+   document.getElementById('noteInput').value=found.note||'';
+
+   updatePreview(
+    document.getElementById('nameInput').value,
+    document.getElementById('deptInput').value,
+    document.getElementById('cidInput').value,
+    document.getElementById('noteInput').value
+);
+ }else{
+   alert('ไม่พบข้อมูลในระบบ บันทึกเป็น Walk-in');
+   document.getElementById('nameInput').value='Walk-in';
+   document.getElementById('noteInput').value='รับธาตุเหล็ก';
+ }
+});
+
+document.getElementById('btnRegister').addEventListener('click',()=>{
+ const name=document.getElementById('nameInput').value.trim();
+ const dept=document.getElementById('deptInput').value.trim();
+ const cid=document.getElementById('cidInput').value.trim();
+ const note=document.getElementById('noteInput').value.trim();
+ const eventName=document.getElementById('eventName').value.trim();
+ if(!cid)return alert('กรุณากรอกเลขบัตรประชาชน');
+ const currentQ=nextQ;
+ const entry={q:currentQ,name,dept,cid,note,time:new Date().toLocaleString('th-TH'),event:eventName};
+ entries.push(entry);
+ localStorage.setItem(KEY_ENTRIES,JSON.stringify(entries));
+ updatePreview(name,dept,cid,note);
+ renderList();
+ nextQ++;
+ localStorage.setItem(KEY_QUEUE,nextQ);
+ //alert('บันทึกคิวเรียบร้อย!');  ถ้าอยากให้แจ้งเตือนลบ//ข้างหน้าออก
+});
+
+function renderList(){
+ const list=document.getElementById('list');list.innerHTML='';
+ entries.slice(-10).forEach(e=>{
+   const div=document.createElement('div');div.className='entry';div.textContent=`คิว ${e.q}: ${e.name}, ${e.cid}, ${e.note}`;list.appendChild(div);
+ });
+}
+renderList();
+
+document.getElementById('btnExport').addEventListener('click',()=>{
+ if(entries.length===0)return alert('ยังไม่มีข้อมูลคิว');
+ const header=['Queue','Name','Dept','CID','Note','Time','Event'];
+ const csv=[header.join(',')];
+ entries.forEach(e=>csv.push([e.q,e.name,e.dept,e.cid,e.note,e.time,e.event].map(v=>`"${v}"`).join(',')));
+ const blob=new Blob([csv.join('\n')],{type:'text/csv;charset=utf-8;'});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement('a');a.href=url;a.download='queue_export.csv';a.click();URL.revokeObjectURL(url);
+});
+
+document.getElementById('btnResetQueue').addEventListener('click',()=>{
+ if(confirm('คุณต้องการรีเซ็ตคิวใช่หรือไม่?')){
+   entries=[];nextQ=startQ;
+   localStorage.removeItem(KEY_ENTRIES);
+   localStorage.setItem(KEY_QUEUE,nextQ);
+   renderList();
+ }
+});
+
+const ticket=document.getElementById('ticketPreview');
+document.getElementById('btnPreviewImage').addEventListener('click',()=>{
+ html2canvas(ticket,{scale:4}).then(canvas=>{
+   const imgData=canvas.toDataURL('image/png');
+   const w=window.open('','_blank');
+   w.document.write('<html><head><title>Preview Queue</title></head><body style="margin:0;display:flex;justify-content:center;align-items:center;height:100vh;background:#f0f0f0;"><img src="'+imgData+'" style="max-width:100%;height:auto;border:1px solid #ccc;box-shadow:0 0 8px rgba(0,0,0,0.2)"/></body></html>');
+   w.document.close();
+ });
+});
+
+document.getElementById('btnPrint').addEventListener('click',()=>{
+ html2canvas(ticket,{scale:4}).then(canvas=>{
+   const imgData=canvas.toDataURL('image/png');
+   const w=window.open('','_blank');
+   w.document.write('<html><head><title>Print Queue</title></head><body style="margin:0;display:flex;justify-content:center;align-items:center;height:100vh;"><img src="'+imgData+'" style="width:100%;height:auto;"/></body></html>');
+   w.document.close();
+   w.onload=()=>{w.focus();w.print();w.close();};
+ });
+});
+</script>
+</body>
+</html>
