@@ -254,7 +254,7 @@ document.getElementById('btnPreviewImage').addEventListener('click',()=>{
  html2canvas(ticket,{scale:4}).then(canvas=>{
    const imgData=canvas.toDataURL('image/png');
    const w=window.open('','_blank');
-   w.document.write('<html><head><title>Preview Queue</title><style><html,body{margin:0;padding:0;width:100%;height:100%;display:flex;justify-content:center;align-items:center;background:#f0f0f0;}{img{max-width:100%;height:auto;}></style></head><body><img src="${imgData}"/></body></html>');
+   w.document.write('<html><head><title>Preview Queue</title></head><body style="margin:0;display:flex;justify-content:center;align-items:center;height:100%;background:#f0f0f0;"><img src="'+imgData+'" style="max-width:100%;height:auto;border:1px solid #ccc;box-shadow:0 0 8px rgba(0,0,0,0.2)"/></body></html>');
    w.document.close();
  });
 });
