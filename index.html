@@ -55,10 +55,10 @@ button.primary{background:#2563eb;color:white;border:none;cursor:pointer;font-si
 <div class="preview-wrap">
 <div class="ticket-wrapper">
 <div id="ticketPreview" class="ticket">
-<div class="header" id="previewEvent">ลงทะเบียน</div> 
+<div class="header" id="previewEvent">เคลือบฟลูออไรด์ 20 มี.ค. 69</div> 
 <div class="qn" id="previewQ">001</div>
-<div class="meta" id="previewName">---RPF---</div> 
-<div class="meta" id="previewCid">1234567890123</div>
+<div class="meta" id="previewName">  </div> 
+<div class="meta" id="previewCid"> - </div>
 <div class="meta" id="previewNote">Walk-in</div>
 <div class="footer" id="previewTime">11/11/2025 09:35</div>
 </div>
@@ -254,7 +254,7 @@ document.getElementById('btnPreviewImage').addEventListener('click',()=>{
  html2canvas(ticket,{scale:4}).then(canvas=>{
    const imgData=canvas.toDataURL('image/png');
    const w=window.open('','_blank');
-   w.document.write('<html><head><title>Preview Queue</title></head><body style="margin:0;display:flex;justify-content:center;align-items:center;height:100vh;background:#f0f0f0;"><img src="'+imgData+'" style="max-width:100%;height:auto;border:1px solid #ccc;box-shadow:0 0 8px rgba(0,0,0,0.2)"/></body></html>');
+   w.document.write('<html><head><title>Preview Queue</title><style><html,body{margin:0;padding:0;width:100%;height:100%;display:flex;justify-content:center;align-items:center;background:#f0f0f0;}{img{max-width:100%;height:auto;}></style></head><body><img src="${imgData}"/></body></html>');
    w.document.close();
  });
 });
