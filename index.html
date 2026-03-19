@@ -25,10 +25,10 @@ button.primary{background:#2563eb;color:white;border:none;cursor:pointer;font-si
   overflow:hidden;
   border:2px dashed #0b5ed7;
   position:relative;
-  display:flex;              /* ✅ เพิ่ม */
-  flex-direction:column;     /* ✅ เพิ่ม */
+  display:flex;              
+  flex-direction:column;    
   justify-content:flex-start; /* หรือ space-between */
-  align-items:center;        /* ✅ เพิ่ม */
+  align-items:center;        
 }
 .ticket .header{font-size:16px;font-weight:700;color:#000;margin-top:1px;margin-bottom:5px}
 .ticket .qn{font-size:72px;font-weight:800;color:#000;margin:6px 0;line-height:1}
@@ -51,13 +51,13 @@ button.primary{background:#2563eb;color:white;border:none;cursor:pointer;font-si
 <div class="container">
 <h1>Queue App Ver.1.6</h1>
 <div class="card">
-<h3>ลำดับการลงทะเบียน</h3>
+<h3>ลำดับการลงทะเบียน</h3>  /* ✅ แก้ไขได้ */
 <div class="preview-wrap">
 <div class="ticket-wrapper">
 <div id="ticketPreview" class="ticket">
-<div class="header" id="previewEvent">ลงทะเบียน</div>
+<div class="header" id="previewEvent">ลงทะเบียน</div> /* ✅ แก้ไขได้ */
 <div class="qn" id="previewQ">001</div>
-<div class="meta" id="previewName">มูลนิธิโครงการหลวง</div>
+<div class="meta" id="previewName">มูลนิธิโครงการหลวง</div> /* ✅ แก้ไขได้ */
 <div class="meta" id="previewCid">1234567890123</div>
 <div class="meta" id="previewNote">Walk-in</div>
 <div class="footer" id="previewTime">11/11/2025 09:35</div>
@@ -96,7 +96,7 @@ button.primary{background:#2563eb;color:white;border:none;cursor:pointer;font-si
 <div class="card">
 <h3>ฐานข้อมูล</h3>
 <label>ชื่อกิจกรรม</label>
-<input id="eventName" placeholder="กรอกชื่อกิจกรรม" value="ลงทะเบียน">
+<input id="eventName" placeholder="กรอกชื่อกิจกรรม" value="ลงทะเบียน"> /* ✅ แก้ไขได้ */
 <label style="margin-top:10px">ตั้งค่าเลขลำดับคิวเริ่มต้น</label>
 <div class="inline">
 <input type="number" id="startQueue" placeholder="ใส่เลขเริ่มต้น เช่น 1001" min="1">
